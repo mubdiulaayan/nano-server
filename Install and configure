@@ -1,0 +1,24 @@
+# install nano server(windows 10 in hyper-v):
+1. copy files from NanoServer\NanoServerImageGenerator(from mounting iso file of server 2016) and paste C:\Nano(creating new dir) 
+2. Windows powershell: 
+	a) Import-Module C:\Nano\NanoServerImageGenerator.psm1
+	b) New-NanoServerImage -Edition Standard -MediaPath D:\ -BasePath C:\Nano -TargetPath C:\Nano\nano-01.vhdx -DeploymentType Guest -ComputerName Nano-01 -storage -Package Microsoft-NanoServer-IIS-Package.
+	c) Administer password to login locally.
+	d) After completing, copy vhdx to another drive or location
+	e) Creating VM attaching the vhdx and run...done!!
+	f) Configuring network for IP and enable incoming firewall for share (all) as were it is availble for admin share (ex: \\192.168.2.10(nano ip)\C$).
+
+# Join Nano server to a domain:
+1. Open ps (domain server): djoin.exe /provision /domain test.com /machine Nano-01 /savefile C:\odjblob
+
+NB:copy the odjblob file to the Nano server share dir (\\Nano server ip\C$) asif we could login with local Administrator account remotely. 
+
+# Remotley connect to Nano server from Domain Controller:
+
+1. In Domain Controller at ps: Set-Item WSMan:\localhost\Client\TrustedHosts "IP of Nano server" [Windows security confirmation] and then type "y"
+2. ps: $ip="ip of nano server"   
+3. ps: Enter-PSSession -ComputerName $ip -Credential $ip\Administrator
+4. ps: djoin /requestodj /loadfile C:\odjblob /windowspath C:\windows /localos [Request and ensure the Nano server joined to the domain]
+5. restart Nano server: shutdown -r -t 0 ....done
+NB: login with domain that ensures the nano server joined with domain.
+
